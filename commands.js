@@ -1,35 +1,32 @@
 var fs = require('fs');
+var request = require('request');
 
-module.exports.pwd = function(arg)
+module.exports.pwd = function(arg, doneFunc)
 {
-  console.log(__dirname);
+  doneFunc(__dirname);
 };
 
 var date = new Date();
-module.exports.date = function(arg)
+module.exports.date = function(arg, doneFunc)
 {
-  console.log(date);
+  doneFunc(date);
 };
 
-module.exports.ls = function(arg)
+module.exports.ls = function(arg, doneFunc)
 {
     fs.readdir('.', function(err, files)
     {
       if (err) throw err;
-      files.forEach(function(file)
-      {
-        process.stdout.write(file.toString() + "\n");
-      });
-      process.stdout.write('\nprompt > ');
+      doneFunc(files.join("\n"));
     });
 };
 
-module.exports.echo = function(args)
+module.exports.echo = function(args, doneFunc)
 {
-  console.log(args.join(" "));
+  doneFunc(args.join(" "));
 };
 
-module.exports.cat = function(fileName)
+module.exports.cat = function(fileName, doneFunc)
 {
   fs.readFile("./"+fileName, 'utf8', function(err,data)
   {
@@ -39,13 +36,12 @@ module.exports.cat = function(fileName)
     }
     else
     {
-      console.log(data);
+      doneFunc(data);
     }
-    process.stdout.write('\nprompt > ');
   });
 };
 
-module.exports.head = function(fileName)
+module.exports.head = function(fileName, doneFunc)
 {
   var outData;
   fs.readFile("./"+fileName, 'utf8', function(err,data)
@@ -57,16 +53,12 @@ module.exports.head = function(fileName)
     else
     {
       outData = data.split("\n").slice(0,5);
-      outData.forEach(function(element)
-      {
-        console.log(element);
-      });
+      doneFunc(outData.join("\n"));
     }
-    process.stdout.write('\nprompt > ');
   });
 };
 
-module.exports.tail = function(fileName)
+module.exports.tail = function(fileName, doneFunc)
 {
   var outData;
   fs.readFile("./"+fileName, 'utf8', function(err,data)
@@ -79,16 +71,12 @@ module.exports.tail = function(fileName)
     {
       var dataInLines = data.split("\n");
       outData = dataInLines.slice(dataInLines.length-6,dataInLines.length);
-      outData.forEach(function(element)
-      {
-        console.log(element);
-      });
+      doneFunc(outData.join("\n"));
     }
-    process.stdout.write('\nprompt > ');
   });
 };
 
-module.exports.sortFile = function(fileName)
+module.exports.sortFile = function(fileName, doneFunc)
 {
   fs.readFile("./"+fileName, 'utf8', function(err,data)
   {
@@ -103,15 +91,12 @@ module.exports.sortFile = function(fileName)
         return element.trim();
       });
       var sorted = trimmed.sort();
-      sorted.forEach(function(line)
-      {
-        console.log(line);
-      });
+      doneFunc(sorted.join("\n"));
     }
   });
 };
 
-module.exports.wc = function(fileName)
+module.exports.wc = function(fileName, doneFunc)
 {
   fs.readFile("./"+fileName, 'utf8', function(err,data)
   {
@@ -122,13 +107,15 @@ module.exports.wc = function(fileName)
     else
     {
       var lines = data.split("\n");
-      console.log(lines.length);
+      doneFunc(lines.length);
     }
   });
 };
 
-module.exports.uniq = function(fileName)
+module.exports.uniq = function(fileName, doneFunc)
 {
+  var output;
+
   fs.readFile("./"+fileName, 'utf8', function(err,data)
   {
     if(err)
@@ -139,17 +126,34 @@ module.exports.uniq = function(fileName)
     {
       var lines = data.split("\n");
       console.log(lines.length);
-      lines.forEach(function(element,index,array)
+
+      output = lines.filter(function(element, index, arr)
       {
-          if(index + 1 < array.length)
-          {
-            if(!(element === array[index+1]))
-            {
-              console.log(element);
-            }
-          }
-          var nextLine = array[index+1];
-      });
+        if(index>0 && element !== arr[index-1])
+        {
+          return true;
+        }
+        else
+        {
+          return false;
+        }
+      }).join("\n");
+
+      doneFunc(output);
     }
   });
 };
+
+module.exports.curl = function(url, doneFunc)
+{
+  request(url, function (err, response, body) {
+    if (!err && response.statusCode == 200) {
+      doneFunc(body); // Show the HTML for the Google homepage.
+    }
+    else
+    {
+      throw err;
+    }
+  });
+}
+
