@@ -19,6 +19,6 @@ module.exports.ls = function(arg){
     });
 };
 
-module.exports.echo = function(arg){
-    process.stdout.write(arg);
+module.exports.echo = function(arguments){
+  console.log(arguments.join(" "));
 }
