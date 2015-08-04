@@ -24,10 +24,10 @@ module.exports.ls = function(arg)
     });
 };
 
-module.exports.echo = function(arguments)
+module.exports.echo = function(args)
 {
-  console.log(arguments.join(" "));
-}
+  console.log(args.join(" "));
+};
 
 module.exports.cat = function(fileName)
 {
@@ -43,7 +43,7 @@ module.exports.cat = function(fileName)
     }
     process.stdout.write('\nprompt > ');
   });
-}
+};
 
 module.exports.head = function(fileName)
 {
@@ -64,7 +64,7 @@ module.exports.head = function(fileName)
     }
     process.stdout.write('\nprompt > ');
   });
-}
+};
 
 module.exports.tail = function(fileName)
 {
@@ -86,7 +86,7 @@ module.exports.tail = function(fileName)
     }
     process.stdout.write('\nprompt > ');
   });
-}
+};
 
 module.exports.sortFile = function(fileName)
 {
@@ -98,11 +98,14 @@ module.exports.sortFile = function(fileName)
     }
     else
     {
-      var sorted = data.split("\n").sort();
-      sorted.forEach(function(element)
+      var unTrimmed = data.split("\n");
+      var trimmed = unTrimmed.map(function(element){
+        return element.trim();
+      });
+      var sorted = trimmed.sort();
+      sorted.forEach(function(line)
       {
-        element = element.trim();
-        console.log(element);
+        console.log(line);
       });
     }
   });
@@ -124,9 +127,29 @@ module.exports.wc = function(fileName)
   });
 };
 
-
-
 module.exports.uniq = function(fileName)
 {
-
-}
+  fs.readFile("./"+fileName, 'utf8', function(err,data)
+  {
+    if(err)
+    {
+      throw err;
+    }
+    else
+    {
+      var lines = data.split("\n");
+      console.log(lines.length);
+      lines.forEach(function(element,index,array)
+      {
+          if(index + 1 < array.length)
+          {
+            if(!(element === array[index+1]))
+            {
+              console.log(element);
+            }
+          }
+          var nextLine = array[index+1];
+      });
+    }
+  });
+};
