@@ -27,4 +27,16 @@ process.stdin.on('data', function(data)
     commands.echo(arguments);
     process.stdout.write('\nprompt > ');
   }
+  else if(cmd ==="cat")
+  {
+    commands.cat(arguments[0]);
+  }
+  else if(cmd === "head")
+  {
+    commands.head(arguments[0]);
+  }
+  else if(cmd ==="tail")
+  {
+    commands.tail(arguments[0]);
+  }
 });
