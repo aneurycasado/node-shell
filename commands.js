@@ -1,78 +1,113 @@
 var fs = require('fs');
 var request = require('request');
 
-module.exports.pwd = function(arg, doneFunc)
+module.exports.pwd = function(argsString, doneFunc)
 {
   doneFunc(__dirname);
 };
 
 var date = new Date();
-module.exports.date = function(arg, doneFunc)
+module.exports.date = function(argsString, doneFunc)
 {
   doneFunc(date);
 };
 
-module.exports.ls = function(arg, doneFunc)
+module.exports.ls = function(argsString, doneFunc)
 {
-    fs.readdir('.', function(err, files)
+    var directory = argsString.split(" ")[0] || '.';
+    fs.readdir(directory, function(err, files)
     {
       if (err) throw err;
       doneFunc(files.join("\n"));
     });
 };
 
-module.exports.echo = function(args, doneFunc)
+module.exports.echo = function(argsString, doneFunc)
 {
-  doneFunc(args.join(" "));
+  doneFunc(argsString);
 };
 
-module.exports.cat = function(fileName, doneFunc)
+module.exports.cat = function(argsString, doneFunc)
 {
-  fs.readFile("./"+fileName, 'utf8', function(err,data)
+  var argsArray = argsString.split(" ");
+  var numFiles = argsArray.length;
+  var counter = 0;
+  var output = '';
+  argsArray.forEach(function(fileName)
   {
-    if(err)
+    fs.readFile("./"+fileName, 'utf8', function(err,data)
     {
-      throw err;
-    }
-    else
-    {
-      doneFunc(data);
-    }
+      if(err)
+      {
+        throw err;
+      }
+      else
+      {
+        counter++;
+        output+= data;
+        if(counter===numFiles)
+        {
+          doneFunc(output);
+        }
+      }
+    });
+
   });
 };
 
-module.exports.head = function(fileName, doneFunc)
+module.exports.head = function(argsString, doneFunc)
 {
-  var outData;
-  fs.readFile("./"+fileName, 'utf8', function(err,data)
+  var argsArray = argsString.split(" ");
+  var numFiles = argsArray.length;
+  var counter = 0;
+  var outputInArray = [];
+  argsArray.forEach(function(fileName)
   {
-    if(err)
+    fs.readFile("./"+fileName, 'utf8', function(err,data)
     {
-      throw err;
-    }
-    else
-    {
-      outData = data.split("\n").slice(0,5);
-      doneFunc(outData.join("\n"));
-    }
+      if(err)
+      {
+        throw err;
+      }
+      else
+      {
+        counter++;
+        outputInArray.push(data.split("\n").slice(0,5).join("\n"));
+        if(counter===numFiles)
+        {
+          doneFunc(outputInArray.join("\n"));
+        }
+      }
+    });
+
   });
 };
 
-module.exports.tail = function(fileName, doneFunc)
+module.exports.tail = function(argsString, doneFunc)
 {
-  var outData;
-  fs.readFile("./"+fileName, 'utf8', function(err,data)
+  var argsArray = argsString.split(" ");
+  var numFiles = argsArray.length;
+  var counter = 0;
+  var outputInArray = [];
+  argsArray.forEach(function(fileName)
   {
-    if(err)
+    fs.readFile("./"+fileName, 'utf8', function(err,data)
     {
-      throw err;
-    }
-    else
-    {
-      var dataInLines = data.split("\n");
-      outData = dataInLines.slice(dataInLines.length-6,dataInLines.length);
-      doneFunc(outData.join("\n"));
-    }
+      if(err)
+      {
+        throw err;
+      }
+      else
+      {
+        counter++;
+        outputInArray.push(data.split("\n").slice(-5).join("\n"));
+        if(counter===numFiles)
+        {
+          doneFunc(outputInArray.join("\n"));
+        }
+      }
+    });
+
   });
 };
 
@@ -86,8 +121,8 @@ module.exports.sortFile = function(fileName, doneFunc)
     }
     else
     {
-      var unTrimmed = data.split("\n");
-      var trimmed = unTrimmed.map(function(element){
+      var untrimmed = data.split("\n");
+      var trimmed = untrimmed.map(function(element){
         return element.trim();
       });
       var sorted = trimmed.sort();
@@ -96,64 +131,95 @@ module.exports.sortFile = function(fileName, doneFunc)
   });
 };
 
-module.exports.wc = function(fileName, doneFunc)
+module.exports.wc = function(argsString, doneFunc)
 {
-  fs.readFile("./"+fileName, 'utf8', function(err,data)
+  var argsArray = argsString.split(" ");
+  var numFiles = argsArray.length;
+  var numLines = 0;
+  var counter = 0;
+  argsArray.forEach(function(fileName)
   {
-    if(err)
+    fs.readFile("./"+fileName, 'utf8', function(err,data)
     {
-      throw err;
-    }
-    else
-    {
-      var lines = data.split("\n");
-      doneFunc(lines.length);
-    }
+      if(err)
+      {
+        throw err;
+      }
+      else
+      {
+        var lines = data.split("\n");
+        numLines += lines.length;
+        counter++;
+        if(counter===argsArray.length)
+        {
+          doneFunc(numLines);
+        }
+      }
+    });
   });
 };
 
-module.exports.uniq = function(fileName, doneFunc)
+module.exports.uniq = function(argsString, doneFunc)
 {
   var output;
-
-  fs.readFile("./"+fileName, 'utf8', function(err,data)
+  argsArray = argsString.split(" ");
+  counter = 0;
+  argsArray.forEach(function(fileName)
   {
-    if(err)
+    fs.readFile("./"+fileName, 'utf8', function(err,data)
     {
-      throw err;
-    }
-    else
-    {
-      var lines = data.split("\n");
-      console.log(lines.length);
-
-      output = lines.filter(function(element, index, arr)
+      if(err)
       {
-        if(index>0 && element !== arr[index-1])
-        {
-          return true;
-        }
-        else
-        {
-          return false;
-        }
-      }).join("\n");
+        throw err;
+      }
+      else
+      {
+        var lines = data.split("\n");
+        counter++;
 
-      doneFunc(output);
-    }
-  });
+        output += lines.filter(function(element, index, arr)
+        {
+          if(index>0 && element !== arr[index-1])
+          {
+            return true;
+          }
+          else
+          {
+            return false;
+          }
+        }).join("\n");
+        if(counter=== argsArray.length)
+        {
+          doneFunc(output);
+        }
+      }
+    });
+  })
 };
 
-module.exports.curl = function(url, doneFunc)
+module.exports.curl = function(argsString, doneFunc)
 {
-  request(url, function (err, response, body) {
-    if (!err && response.statusCode == 200) {
-      doneFunc(body); // Show the HTML for the Google homepage.
-    }
-    else
+  var urlArray = argsString.split(" ");
+  var numUrls = urlArray.length;
+  var counter = 0;
+  var totalBody = "";
+  urlArray.forEach(function(url)
+  {
+    request(url, function (err, response, body)
     {
-      throw err;
-    }
+      if (!err && response.statusCode == 200)
+      {
+        totalBody += body;
+        counter++;
+        if(counter===numUrls)
+        {
+          doneFunc(totalBody);
+        }
+      }
+      else
+      {
+        throw err;
+      }
+    });
   });
 }
-
