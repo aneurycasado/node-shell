@@ -39,4 +39,16 @@ process.stdin.on('data', function(data)
   {
     commands.tail(arguments[0]);
   }
+  else if(cmd ==="sort")
+  {
+    commands.sortFile(arguments[0]);
+  }
+  else if(cmd ==="wc")
+  {
+    commands.wc(arguments[0]);
+  }
+  else if(cmd ==="uniq")
+  {
+    commands.uniq(arguments[0]);
+  }
 });

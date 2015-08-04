@@ -13,10 +13,10 @@ module.exports.date = function(arg)
 
 module.exports.ls = function(arg)
 {
-    fs.readdir('.', function(err, files) 
+    fs.readdir('.', function(err, files)
     {
       if (err) throw err;
-      files.forEach(function(file) 
+      files.forEach(function(file)
       {
         process.stdout.write(file.toString() + "\n");
       });
@@ -86,4 +86,47 @@ module.exports.tail = function(fileName)
     }
     process.stdout.write('\nprompt > ');
   });
+}
+
+module.exports.sortFile = function(fileName)
+{
+  fs.readFile("./"+fileName, 'utf8', function(err,data)
+  {
+    if(err)
+    {
+      throw err;
+    }
+    else
+    {
+      var sorted = data.split("\n").sort();
+      sorted.forEach(function(element)
+      {
+        element = element.trim();
+        console.log(element);
+      });
+    }
+  });
+};
+
+module.exports.wc = function(fileName)
+{
+  fs.readFile("./"+fileName, 'utf8', function(err,data)
+  {
+    if(err)
+    {
+      throw err;
+    }
+    else
+    {
+      var lines = data.split("\n");
+      console.log(lines.length);
+    }
+  });
+};
+
+
+
+module.exports.uniq = function(fileName)
+{
+
 }
