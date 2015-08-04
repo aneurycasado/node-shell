@@ -14,5 +14,7 @@ process.stdin.on('data', function(data) {
   }
   else if(cmd === "ls"){
      commands.ls();
+  }else if(cmd === "echo"){
+    console.log(data);
   }
 });
